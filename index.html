@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0B0C10" />
+  <title>Night Coach</title>
+
+  <style>
+    :root{
+      color-scheme: dark;
+      --bg0:#07080B;
+      --bg1:#0B0C10;
+
+      --card:rgba(17,19,27,.72);
+      --stroke:rgba(255,255,255,.10);
+      --stroke2:rgba(255,255,255,.14);
+
+      --text:#F2F4FF;
+      --muted:rgba(242,244,255,.70);
+      --muted2:rgba(242,244,255,.52);
+
+      --good:#4CE6A3;
+      --warn:#FFD36A;
+      --bad:#FF4D7D;
+
+      --accentA:#7C5CFF;
+      --accentB:#22D3EE;
+
+      --r14:14px;
+      --r18:18px;
+      --r22:22px;
+
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --shadowSoft: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+        radial-gradient(900px 600px at 18% 10%, rgba(124,92,255,.18), transparent 55%),
+        radial-gradient(900px 600px at 88% 18%, rgba(34,211,238,.14), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      color:var(--text);
+      padding: 14px 14px 26px;
+    }
+
+    .wrap{ max-width:860px; margin:0 auto; }
+    .hidden{ display:none !important; }
+
+    /* Topbar */
+    .topbar{
+      position: sticky; top: 10px; z-index: 30;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 14px 14px;
+      border-radius: var(--r22);
+      background: rgba(17,19,27,.55);
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadowSoft);
+    }
+    .brand{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .logo{
+      width:40px; height:40px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(124,92,255,1), rgba(34,211,238,1));
+      box-shadow: 0 16px 40px rgba(124,92,255,.18), 0 16px 40px rgba(34,211,238,.10);
+      position:relative; overflow:hidden;
+    }
+    .logo:after{
+      content:"";
+      position:absolute; inset:-35%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.34), transparent 50%);
+      transform: rotate(18deg);
+    }
+    .brandTitle{ min-width:0; }
+    .brandTitle .h{
+      margin:0; font-size: 16px; font-weight: 850; letter-spacing:.2px;
+      white-space: nowrap; overflow:hidden; text-overflow: ellipsis;
+    }
+    .brandTitle .s{
+      margin-top:2px; font-size: 12px; color: var(--muted2);
+      white-space: nowrap; overflow:hidden; text-overflow: ellipsis;
+    }
+
+    .rightCluster{ display:flex; align-items:center; gap:10px; }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke2);
+      background: rgba(0,0,0,.20);
+      color: var(--muted);
+      font-size: 12px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:999px;
+      background: rgba(242,244,255,.35);
+      box-shadow: 0 0 0 4px rgba(242,244,255,.06);
+    }
+    .dot.good{ background: var(--good); box-shadow: 0 0 0 4px rgba(76,230,163,.10); }
+    .dot.warn{ background: var(--warn); box-shadow: 0 0 0 4px rgba(255,211,106,.10); }
+    .dot.bad{ background: var(--bad); box-shadow: 0 0 0 4px rgba(255,77,125,.10); }
+
+    /* Cards */
+    .grid{ display:grid; gap:12px; margin-top:12px; }
+    .card{
+      border-radius: var(--r22);
+      background: rgba(17,19,27,.62);
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadowSoft);
+      overflow:hidden;
+    }
+    .cardHeader{
+      padding: 14px 14px 10px;
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      background: linear-gradient(180deg, rgba(255,255,255,.035), transparent);
+    }
+    .cardHeader .title{
+      margin:0; font-size: 14px; font-weight: 850; letter-spacing:.2px;
+    }
+    .cardHeader .hint{
+      margin-top:4px; font-size: 12px; color: var(--muted2);
+      line-height:1.25;
+    }
+    .cardBody{ padding: 14px; }
+
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,.07);
+      margin: 12px 0;
+    }
+
+    /* Form */
+    label{
+      display:flex; justify-content:space-between; gap:10px;
+      font-size: 12px; color: var(--muted);
+      margin: 0 0 8px;
+      letter-spacing:.2px;
+    }
+    .labelRight{ font-size: 11px; color: var(--muted2); }
+    input, select, textarea{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.11);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      outline:none;
+      font-size: 15px;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(124,92,255,.65);
+      box-shadow: 0 0 0 4px rgba(124,92,255,.16);
+    }
+
+    .row{ display:grid; grid-template-columns: 1fr; gap:10px; }
+    @media(min-width:700px){
+      .row.two{ grid-template-columns: 1fr 1fr; }
+      .row.three{ grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    /* Chips */
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+    .chip{
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.11);
+      background: rgba(0,0,0,.14);
+      color: var(--muted);
+      font-size: 13px;
+      user-select:none;
+      cursor:pointer;
+      transition: transform .04s ease, border-color .12s ease, background .12s ease;
+    }
+    .chip:active{ transform: scale(.99); }
+    .chip.selected{
+      color: var(--text);
+      border-color: rgba(34,211,238,.55);
+      box-shadow: 0 0 0 4px rgba(34,211,238,.10);
+      background:
+        radial-gradient(160px 70px at 40% 10%, rgba(34,211,238,.16), transparent 62%),
+        rgba(0,0,0,.12);
+    }
+
+    /* Buttons */
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:stretch; }
+    .btn{
+      flex: 1 1 160px;
+      padding: 13px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 850;
+      cursor:pointer;
+      user-select:none;
+      min-height: 48px;
+      transition: transform .04s ease, filter .12s ease, border-color .12s ease;
+    }
+    .btn:active{ transform: scale(.99); }
+    .btnPrimary{
+      border-color: rgba(124,92,255,.55);
+      background: linear-gradient(135deg, rgba(124,92,255,.92), rgba(34,211,238,.78));
+      box-shadow: 0 18px 50px rgba(124,92,255,.14), 0 18px 50px rgba(34,211,238,.10);
+    }
+    .btnDanger{
+      border-color: rgba(255,77,125,.50);
+      background: linear-gradient(135deg, rgba(255,77,125,.90), rgba(255,77,141,.72));
+      box-shadow: 0 18px 50px rgba(255,77,125,.12);
+    }
+    .btnGhost{
+      background: transparent;
+      border-color: rgba(255,255,255,.10);
+      color: var(--muted);
+    }
+    .btnSmall{
+      flex: 0 0 auto;
+      min-height: auto;
+      padding: 10px 12px;
+      font-size: 13px;
+      border-radius: 14px;
+    }
+    .btn:disabled{
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    /* Runner */
+    .timerBig{
+      font-size: 56px;
+      font-weight: 920;
+      letter-spacing: .6px;
+      line-height: 1.05;
+      margin: 2px 0 6px;
+    }
+    .status{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing:.2px;
+      margin: 0 0 6px;
+    }
+    .status.good{ color: var(--good); }
+    .status.warn{ color: var(--warn); }
+    .status.bad{ color: var(--bad); }
+
+    .metaRow{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+
+    /* Blocks */
+    .block{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.12);
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .blockTitle{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom: 8px;
+    }
+    .blockTitle h3{ margin:0; font-size: 13px; font-weight: 900; letter-spacing:.2px; }
+    .small{ font-size: 12px; color: var(--muted2); line-height:1.35; }
+    ul.bullets{ margin: 0; padding-left: 18px; line-height: 1.45; }
+    ul.bullets li{ margin: 6px 0; }
+
+    /* Log */
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      line-height: 1.35;
+      color: rgba(242,244,255,.82);
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.38);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 13px;
+      box-shadow: var(--shadowSoft);
+      backdrop-filter: blur(12px);
+      display:none;
+      z-index: 60;
+      max-width: 92vw;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .warnText{ color: var(--warn); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div class="brandTitle">
+          <div class="h">Night Coach</div>
+          <div class="s" id="topSub">Sleep training cockpit</div>
+        </div>
+      </div>
+
+      <div class="rightCluster">
+        <div class="pill" id="statePill">
+          <span class="dot" id="stateDot"></span>
+          <span id="stateText">IDLE</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- INTAKE -->
+      <div class="card" id="intakeCard">
+        <div class="cardHeader">
+          <div>
+            <div class="title">Intake</div>
+            <div class="hint">Quick setup → Ferber day → editable plan</div>
+          </div>
+          <div class="pill">~30 sec</div>
+        </div>
+        <div class="cardBody">
+          <div class="row two">
+            <div>
+              <label>Baby name <span class="labelRight">optional</span></label>
+              <input id="babyName" placeholder="Cam" />
+            </div>
+            <div>
+              <label>Age (months) <span class="labelRight">e.g., 5.5</span></label>
+              <input id="ageMonths" inputmode="decimal" placeholder="5.5" />
+            </div>
+          </div>
+
+          <div class="row two" style="margin-top:12px;">
+            <div>
+              <label>Nights attempted so far <span class="labelRight">tonight = +1</span></label>
+              <input id="nightsAttempted" inputmode="numeric" placeholder="1" />
+            </div>
+            <div>
+              <label>Longest crying stretch <span class="labelRight">minutes</span></label>
+              <input id="longestCry" inputmode="numeric" placeholder="90" />
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row two">
+            <div>
+              <label>Current night feeds <span class="labelRight">now</span></label>
+              <select id="currentFeeds">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4+</option>
+              </select>
+            </div>
+            <div>
+              <label>Target feeds <span class="labelRight">goal</span></label>
+              <select id="targetFeeds">
+                <option value="same" selected>Keep same for now</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row two" style="margin-top:12px;">
+            <div>
+              <label>Target timeframe <span class="labelRight">days</span></label>
+              <input id="targetDays" inputmode="numeric" placeholder="10" />
+            </div>
+            <div>
+              <label>Alerts <span class="labelRight">haptics</span></label>
+              <select id="alertMode">
+                <option value="vibrate" selected>Vibrate only</option>
+                <option value="vibrate+beep">Vibrate + beep</option>
+                <option value="none">None</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <label>Typical feed windows <span class="labelRight">optional</span></label>
+            <div class="chips" id="feedWindows">
+              <div class="chip" data-v="23:00-01:00">11–1</div>
+              <div class="chip" data-v="01:00-03:00">1–3</div>
+              <div class="chip" data-v="03:00-05:00">3–5</div>
+              <div class="chip" data-v="05:00-07:00">5–7</div>
+            </div>
+            <div class="small" style="margin-top:6px;">Used for guidance + logging (not medical advice).</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="btnRow">
+            <button class="btn btnGhost" id="loadExampleBtn" type="button">Load example</button>
+            <button class="btn btnPrimary" id="generateBtn" type="button">Generate plan</button>
+          </div>
+
+          <div class="small" style="margin-top:10px;">
+            Ferber day is based on “nights attempted so far.” If last night was Day 1, enter <b>1</b> → tonight becomes <b>Day 2</b>.
+          </div>
+        </div>
+      </div>
+
+      <!-- PLAN -->
+      <div class="card hidden" id="planCard">
+        <div class="cardHeader">
+          <div>
+            <div class="title" id="planTitle">Tonight’s plan</div>
+            <div class="hint" id="planSubtitle">Ferber day schedule + your edits</div>
+          </div>
+          <div class="pill"><span class="dot good"></span><span>READY</span></div>
+        </div>
+        <div class="cardBody" id="planBody"></div>
+      </div>
+
+      <!-- RUNNER -->
+      <div class="card hidden" id="runnerCard">
+        <div class="cardHeader">
+          <div>
+            <div class="title">Session runner</div>
+            <div class="hint" id="runnerHint">Follow prompts. No math.</div>
+          </div>
+          <div class="pill"><span class="dot good"></span><span id="runnerStateLabel">LIVE</span></div>
+        </div>
+
+        <div class="cardBody">
+          <div class="small" id="runnerHeadline">Session running</div>
+          <div class="timerBig" id="countdown">00:00</div>
+          <div class="status good" id="statusText">WAIT</div>
+          <div class="small" id="nextAtText">Next check-in at —</div>
+
+          <div class="metaRow">
+            <div class="pill"><span class="dot good"></span><span id="elapsedPill">Elapsed: 0:00</span></div>
+            <div class="pill"><span class="dot"></span><span id="intervalPill">Interval: 1</span></div>
+            <div class="pill"><span class="dot warn"></span><span id="modePill">Mode: Ferber</span></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Primary actions -->
+          <div class="btnRow">
+            <button class="btn btnPrimary" id="logCheckinBtn" type="button">Log check-in</button>
+            <button class="btn" id="logFeedBtn" type="button">Log feed</button>
+            <button class="btn" id="asleepBtn" type="button">Baby asleep</button>
+          </div>
+
+          <!-- Secondary actions -->
+          <div class="btnRow" style="margin-top:10px;">
+            <button class="btn" id="pauseBtn" type="button">Pause</button>
+            <button class="btn btnDanger" id="resetBtn" type="button">Reset (picked up)</button>
+          </div>
+
+          <!-- Asleep actions -->
+          <div class="btnRow hidden" style="margin-top:10px;" id="asleepActions">
+            <button class="btn btnPrimary" id="newWakeBtn" type="button">New wake</button>
+            <button class="btn btnDanger" id="endBtn" type="button">End session</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="block">
+            <div class="blockTitle">
+              <h3>Check-in script</h3>
+              <span class="pill"><span class="dot"></span><span>30–60 sec</span></span>
+            </div>
+            <div class="small" id="checkinScriptText">
+              Calm voice. Quick reassurance. No pickup. Leave while baby is still awake.
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="blockTitle">
+              <h3>Utilities</h3>
+              <span class="pill"><span class="dot warn"></span><span>optional</span></span>
+            </div>
+            <div class="btnRow" style="margin-top:8px;">
+              <button class="btn" id="wakeLockBtn" type="button">Keep screen awake: OFF</button>
+              <button class="btn btnGhost" id="backToPlanBtn" type="button">Back to plan</button>
+            </div>
+            <div class="small" style="margin-top:8px;">
+              Intervals are locked during a session (to prevent “2am fat-finger edits”).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOG -->
+      <div class="card" id="logCard">
+        <div class="cardHeader">
+          <div>
+            <div class="title">Log</div>
+            <div class="hint">Timestamps + elapsed time. Export anytime.</div>
+          </div>
+          <div class="btnRow" style="flex:0 0 auto; gap:8px;">
+            <button class="btn btnSmall" id="exportBtn" type="button">Export</button>
+            <button class="btn btnSmall" id="clearLogBtn" type="button">Clear</button>
+          </div>
+        </div>
+        <div class="cardBody">
+          <div class="mono" id="logView">(no log yet)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  // =======================
+  // Ferber schedule (from chart)
+  // =======================
+  const FERBER = {
+    1: [3, 5, 10, 10],
+    2: [5, 10, 12, 12],
+    3: [10, 12, 15, 15],
+    4: [12, 15, 17, 17],
+    5: [15, 17, 20, 20],
+    6: [17, 20, 25, 25],
+    7: [20, 25, 30, 30]
+  };
+
+  // =======================
+  // Storage + helpers
+  // =======================
+  const KEY = "nightCoach.v1.1";
+  const $ = (id) => document.getElementById(id);
+  const now = () => new Date();
+  const pad2 = (n) => String(n).padStart(2, "0");
+
+  function loadState(){
+    try { return JSON.parse(localStorage.getItem(KEY) || "{}"); }
+    catch { return {}; }
+  }
+  function saveState(s){
+    localStorage.setItem(KEY, JSON.stringify(s));
+  }
+
+  function toast(msg){
+    const el = $("toast");
+    el.textContent = msg;
+    el.style.display = "block";
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.style.display = "none", 1800);
+  }
+
+  function fmtClock(d){
+    let h = d.getHours(), m = d.getMinutes();
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12; if (h === 0) h = 12;
+    return `${h}:${pad2(m)} ${ampm}`;
+  }
+  function fmtMMSS(ms){
+    const s = Math.max(0, Math.floor(ms/1000));
+    const mm = Math.floor(s/60);
+    const ss = s % 60;
+    return `${pad2(mm)}:${pad2(ss)}`;
+  }
+  function fmtElapsed(ms){
+    const s = Math.max(0, Math.floor(ms/1000));
+    const h = Math.floor(s/3600);
+    const m = Math.floor((s%3600)/60);
+    const sec = s % 60;
+    return h>0 ? `${h}:${pad2(m)}:${pad2(sec)}` : `${m}:${pad2(sec)}`;
+  }
+  function parseNum(v, fallback=null){
+    const n = Number(String(v ?? "").trim());
+    return Number.isFinite(n) ? n : fallback;
+  }
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function uniq(arr){ return Array.from(new Set(arr)); }
+
+  function parseIntervals(str){
+    const arr = String(str || "")
+      .split(",")
+      .map(x => x.trim())
+      .filter(Boolean)
+      .map(x => Number(x))
+      .filter(x => Number.isFinite(x) && x > 0);
+    return arr.length ? arr : null;
+  }
+
+  function ferberDayFromNightsAttempted(nightsAttempted){
+    const n = Math.max(0, parseNum(nightsAttempted, 0) || 0);
+    return Math.min(7, Math.max(1, n + 1));
+  }
+
+  function getFerberIntervals(day){
+    const d = Math.min(7, Math.max(1, day));
+    return FERBER[d];
+  }
+
+  // =======================
+  // App state
+  // =======================
+  let state = loadState();
+
+  state.intake = state.intake || {
+    babyName: "",
+    ageMonths: "",
+    nightsAttempted: "1",
+    longestCry: "",
+    currentFeeds: "2",
+    targetFeeds: "same",
+    targetDays: "10",
+    feedWindows: [],
+    alertMode: "vibrate"
+  };
+
+  state.plan = state.plan || null;
+
+  state.session = state.session || {
+    status: "idle",        // idle | running | paused | asleep
+    startedAt: null,
+    pausedAt: null,
+    pauseAccumMs: 0,
+    dueAt: null,
+    checkIndex: 0,
+    lockedIntervals: [],
+    asleepAt: null,
+    log: []
+  };
+
+  // =======================
+  // Logging (separate feed vs check-in)
+  // =======================
+  function computeElapsedMsAt(tMs){
+    if (!state.session.startedAt) return 0;
+    const start = new Date(state.session.startedAt).getTime();
+    const base = tMs - start - (state.session.pauseAccumMs || 0);
+    return Math.max(0, base);
+  }
+
+  function logEvent(type, note=""){
+    const t = now();
+    const tMs = t.getTime();
+    const baby = (state.intake.babyName || "").trim();
+    const day = state.plan?.ferberDay ? `Day ${state.plan.ferberDay}` : "";
+    const elapsed = state.session.startedAt ? fmtElapsed(computeElapsedMsAt(tMs)) : "—";
+
+    const header = `${fmtClock(t)}${baby ? ` (${baby})` : ""}${day ? ` [Ferber ${day}]` : ""} — `;
+    const line = `${header}${type}${note ? `: ${note}` : ""}  ·  elapsed ${elapsed}`;
+
+    state.session.log = state.session.log || [];
+    state.session.log.push(line);
+    saveState(state);
+    renderLog();
+  }
+
+  function renderLog(){
+    const lines = state.session.log || [];
+    $("logView").textContent = lines.length ? lines.slice().reverse().join("\n") : "(no log yet)";
+  }
+
+  // =======================
+  // Feed windows chips
+  // =======================
+  function renderFeedWindowChips(){
+    const selected = new Set(state.intake.feedWindows || []);
+    document.querySelectorAll("#feedWindows .chip").forEach(chip => {
+      const v = chip.getAttribute("data-v");
+      chip.classList.toggle("selected", selected.has(v));
+    });
+  }
+
+  $("feedWindows").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    const v = chip.getAttribute("data-v");
+    let arr = (state.intake.feedWindows || []).slice();
+    if (arr.includes(v)) arr = arr.filter(x => x !== v);
+    else arr.push(v);
+    state.intake.feedWindows = uniq(arr);
+    saveState(state);
+    renderFeedWindowChips();
+  });
+
+  // =======================
+  // Intake hydrate/save
+  // =======================
+  function hydrateIntake(){
+    $("babyName").value = state.intake.babyName || "";
+    $("ageMonths").value = state.intake.ageMonths || "";
+    $("nightsAttempted").value = state.intake.nightsAttempted ?? "1";
+    $("longestCry").value = state.intake.longestCry || "";
+    $("currentFeeds").value = state.intake.currentFeeds ?? "2";
+    $("targetFeeds").value = state.intake.targetFeeds ?? "same";
+    $("targetDays").value = state.intake.targetDays ?? "10";
+    $("alertMode").value = state.intake.alertMode ?? "vibrate";
+    renderFeedWindowChips();
+  }
+
+  function saveIntakeFromUI(){
+    state.intake.babyName = $("babyName").value.trim();
+    state.intake.ageMonths = $("ageMonths").value.trim();
+    state.intake.nightsAttempted = $("nightsAttempted").value.trim();
+    state.intake.longestCry = $("longestCry").value.trim();
+    state.intake.currentFeeds = $("currentFeeds").value;
+    state.intake.targetFeeds = $("targetFeeds").value;
+    state.intake.targetDays = $("targetDays").value.trim();
+    state.intake.alertMode = $("alertMode").value;
+    saveState(state);
+  }
+
+  // =======================
+  // Plan generation + rendering
+  // =======================
+  function buildFeedReductionText(){
+    const cur = state.plan?.feeds?.current ?? null;
+    const tgt = state.plan?.feeds?.target ?? null;
+    const days = state.plan?.feeds?.days ?? null;
+
+    if (cur === null || tgt === null) return ["No feed target set."];
+
+    if (tgt >= cur) return [`Night feeds: maintain ${cur}.`];
+
+    const timeframe = days ? `~${days} days` : "1–2 weeks";
+    const windows = (state.intake.feedWindows || []).length
+      ? `Preferred feed windows: ${state.intake.feedWindows.join(", ")}.`
+      : "If you want structure, pick one feed window you’ll keep consistent.";
+
+    return [
+      `Goal: reduce night feeds from ${cur} → ${tgt} over ${timeframe}.`,
+      windows,
+      "How: pick one feed to keep as the “scheduled feed.” All other wakes are handled with Ferber (check-ins).",
+      "Every 2–3 nights: either shorten the “drop” feed by ~1–2 minutes OR push it later by ~15–30 minutes.",
+      "Important: don’t nurse/bottle to sleep at bedtime—finish feeding before put-down when possible."
+    ];
+  }
+
+  function planBlock(title, items){
+    const li = (items || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+    return `
+      <div class="block">
+        <div class="blockTitle">
+          <h3>${escapeHtml(title)}</h3>
+          <span class="pill"><span class="dot"></span><span>guidance</span></span>
+        </div>
+        <ul class="bullets">${li}</ul>
+      </div>
+    `;
+  }
+
+  function generatePlan(){
+    saveIntakeFromUI();
+
+    const age = parseNum(state.intake.ageMonths, null);
+    if (age === null || age <= 0){
+      toast("Add age in months (e.g., 5.5)");
+      return;
+    }
+
+    const ferberDay = ferberDayFromNightsAttempted(state.intake.nightsAttempted);
+    const recommendedIntervals = getFerberIntervals(ferberDay);
+
+    const curFeeds = parseNum(state.intake.currentFeeds, 0) || 0;
+    const tgtRaw = state.intake.targetFeeds || "same";
+    const tgtFeeds = (tgtRaw === "same") ? curFeeds : (parseNum(tgtRaw, curFeeds) ?? curFeeds);
+    const tgtDays = parseNum(state.intake.targetDays, 10) || 10;
+
+    state.plan = {
+      createdAt: now().toISOString(),
+      babyName: state.intake.babyName || "",
+      ageMonths: age,
+      ferberDay,
+      recommendedIntervals: recommendedIntervals.slice(),
+      editableIntervalsStr: recommendedIntervals.join(", "),
+      feeds: { current: curFeeds, target: tgtFeeds, days: tgtDays },
+      alertMode: state.intake.alertMode || "vibrate"
+    };
+
+    saveState(state);
+    renderPlan();
+    showScreen("plan");
+    toast("Plan generated");
+  }
+
+  function renderPlan(){
+    if (!state.plan) return;
+
+    const name = state.plan.babyName ? `${state.plan.babyName} — ` : "";
+    $("planTitle").textContent = `${name}Tonight’s plan`;
+    $("planSubtitle").textContent = `Ferber Day ${state.plan.ferberDay} (from chart)`;
+
+    const isSessionActive = ["running","paused","asleep"].includes(state.session.status);
+
+    const feedBullets = buildFeedReductionText();
+    const recommended = state.plan.recommendedIntervals.join(", ");
+
+    $("planBody").innerHTML = `
+      <div class="row two">
+        <div>
+          <label>Ferber Day <span class="labelRight">auto</span></label>
+          <input value="Day ${state.plan.ferberDay}" disabled />
+        </div>
+        <div>
+          <label>Recommended intervals <span class="labelRight">minutes</span></label>
+          <input value="${escapeHtml(recommended)}" disabled />
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <label>Intervals for tonight <span class="labelRight">${isSessionActive ? "locked during session" : "editable"}</span></label>
+        <input id="intervalsInput" value="${escapeHtml(state.plan.editableIntervalsStr)}" ${isSessionActive ? "disabled" : ""}/>
+        <div class="small" style="margin-top:6px;">
+          Edit before you start. Once the session starts, it locks to prevent accidents.
+        </div>
+      </div>
+
+      ${planBlock("Feeding plan (logged separately)", feedBullets)}
+
+      ${planBlock("Ferber reminders", [
+        "Check-ins are brief. No pickup. Calm voice. Leave while still awake.",
+        "When baby falls asleep: do nothing. You’re done until the next wake.",
+        "If baby wakes again later: tap “New wake” and restart intervals from #1 (same day)."
+      ])}
+
+      <div class="divider"></div>
+      <div class="btnRow">
+        <button class="btn btnPrimary" id="startSessionBtn" type="button" ${isSessionActive ? "disabled" : ""}>Start session</button>
+        <button class="btn" id="editIntakeBtn" type="button">Edit intake</button>
+      </div>
+
+      <div class="small" style="margin-top:10px;">
+        Tip: if you’re on Day 2 and want 5,10,12,12, just edit the intervals box.
+      </div>
+    `;
+
+    const inp = document.getElementById("intervalsInput");
+    if (inp && !isSessionActive){
+      inp.addEventListener("input", () => {
+        state.plan.editableIntervalsStr = inp.value;
+        saveState(state);
+      });
+    }
+
+    $("startSessionBtn").addEventListener("click", startSession);
+    $("editIntakeBtn").addEventListener("click", () => showScreen("intake"));
+  }
+
+  // =======================
+  // Screen state
+  // =======================
+  function setStatePill(status){
+    $("stateText").textContent = status.toUpperCase();
+    const dot = $("stateDot");
+    dot.classList.remove("good","warn","bad");
+    if (status === "running") dot.classList.add("good");
+    else if (status === "paused") dot.classList.add("warn");
+    else if (status === "asleep") dot.classList.add("good");
+    else dot.classList.add("warn");
+  }
+
+  function showScreen(which){
+    const isRunner = (which === "runner");
+    $("intakeCard").classList.toggle("hidden", which !== "intake");
+    $("planCard").classList.toggle("hidden", which !== "plan");
+    $("runnerCard").classList.toggle("hidden", which !== "runner");
+
+    if (which === "intake"){
+      $("topSub").textContent = "Sleep training cockpit";
+    } else if (which === "plan"){
+      $("topSub").textContent = "Tonight’s plan";
+    } else if (which === "runner"){
+      $("topSub").textContent = "Session running";
+    }
+  }
+
+  // =======================
+  // Runner engine (pause truly pauses)
+  // =======================
+  let tickTimer = null;
+  let wakeLock = null;
+  let dueFiredFor = null;
+
+  function getLockedIntervals(){
+    return (state.session.lockedIntervals && state.session.lockedIntervals.length)
+      ? state.session.lockedIntervals
+      : (state.plan?.recommendedIntervals || []);
+  }
+
+  function getNextIntervalMinutes(idx){
+    const arr = getLockedIntervals();
+    if (!arr.length) return 10; // fallback (shouldn't happen)
+    if (idx < arr.length) return arr[idx];
+    return arr[arr.length - 1];
+  }
+
+  function scheduleDueFrom(baseTime){
+    const idx = state.session.checkIndex || 0;
+    const mins = getNextIntervalMinutes(idx);
+    const due = new Date(baseTime.getTime() + mins*60*1000);
+    state.session.dueAt = due.toISOString();
+    dueFiredFor = null;
+  }
+
+  async function alertDue(){
+    const mode = state.plan?.alertMode || "vibrate";
+    if (mode === "none") return;
+
+    if (navigator.vibrate) navigator.vibrate([200,80,200,80,200]);
+
+    if (mode === "vibrate+beep"){
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.value = 880;
+        g.gain.value = 0.02;
+        o.connect(g); g.connect(ctx.destination);
+        o.start();
+        setTimeout(() => { o.stop(); ctx.close(); }, 140);
+      }catch{}
+    }
+  }
+
+  function computeElapsedMs(){
+    if (!state.session.startedAt) return 0;
+    const start = new Date(state.session.startedAt).getTime();
+    const baseNow = now().getTime();
+
+    if (state.session.status === "paused" && state.session.pausedAt){
+      const pausedAt = new Date(state.session.pausedAt).getTime();
+      return Math.max(0, pausedAt - start - (state.session.pauseAccumMs || 0));
+    }
+    if (state.session.status === "asleep" && state.session.asleepAt){
+      const asleepAt = new Date(state.session.asleepAt).getTime();
+      return Math.max(0, asleepAt - start - (state.session.pauseAccumMs || 0));
+    }
+    return Math.max(0, baseNow - start - (state.session.pauseAccumMs || 0));
+  }
+
+  function updateRunnerUI(){
+    const status = state.session.status || "idle";
+    setStatePill(status);
+
+    if (!["running","paused","asleep"].includes(status)) return;
+
+    $("runnerStateLabel").textContent = status.toUpperCase();
+    $("modePill").textContent = `Mode: Ferber Day ${state.plan?.ferberDay ?? "—"}`;
+
+    const elapsedMs = computeElapsedMs();
+    $("elapsedPill").textContent = `Elapsed: ${fmtElapsed(elapsedMs)}`;
+    $("intervalPill").textContent = `Interval: ${(state.session.checkIndex || 0) + 1}`;
+
+    if (status === "asleep"){
+      $("runnerHeadline").textContent = "Baby asleep";
+      $("statusText").textContent = "OBSERVE";
+      $("statusText").className = "status good";
+      $("countdown").textContent = fmtElapsed(elapsedMs);
+      $("nextAtText").textContent = "If baby wakes, tap “New wake” to restart the timer.";
+      $("pauseBtn").disabled = true;
+      $("resetBtn").disabled = true;
+      $("logCheckinBtn").disabled = true;
+      $("logFeedBtn").disabled = false;
+      $("asleepBtn").disabled = true;
+      $("asleepActions").classList.remove("hidden");
+      return;
+    } else {
+      $("asleepActions").classList.add("hidden");
+      $("pauseBtn").disabled = false;
+      $("resetBtn").disabled = false;
+      $("logCheckinBtn").disabled = false;
+      $("logFeedBtn").disabled = false;
+      $("asleepBtn").disabled = false;
+    }
+
+    if (status === "paused"){
+      $("runnerHeadline").textContent = "Paused";
+      $("statusText").textContent = "PAUSED";
+      $("statusText").className = "status warn";
+      $("pauseBtn").textContent = "Resume";
+      $("countdown").textContent = "— —";
+      $("nextAtText").textContent = "Timer is paused.";
+      return;
+    } else {
+      $("runnerHeadline").textContent = "Session running";
+      $("pauseBtn").textContent = "Pause";
+    }
+
+    const dueAt = state.session.dueAt ? new Date(state.session.dueAt) : null;
+    const dueMs = dueAt ? (dueAt.getTime() - now().getTime()) : 0;
+
+    $("countdown").textContent = fmtMMSS(dueMs);
+    $("nextAtText").textContent = dueAt ? `Next check-in at ${fmtClock(dueAt)}` : "Next check-in at —";
+
+    const isDue = dueMs <= 0;
+    if (isDue){
+      $("statusText").textContent = "CHECK-IN NOW";
+      $("statusText").className = "status bad";
+      if (dueAt && dueFiredFor !== state.session.dueAt){
+        dueFiredFor = state.session.dueAt;
+        alertDue();
+      }
+    } else {
+      $("statusText").textContent = "WAIT";
+      $("statusText").className = "status good";
+    }
+  }
+
+  function startTicking(){
+    if (tickTimer) clearInterval(tickTimer);
+    tickTimer = setInterval(updateRunnerUI, 250);
+    updateRunnerUI();
+  }
+
+  function stopTicking(){
+    if (tickTimer) clearInterval(tickTimer);
+    tickTimer = null;
+  }
+
+  function startSession(){
+    if (!state.plan){
+      toast("Generate a plan first");
+      return;
+    }
+
+    // lock intervals at start (your requirement)
+    const edited = parseIntervals(state.plan.editableIntervalsStr);
+    const locked = edited ? edited : state.plan.recommendedIntervals.slice();
+
+    const t = now();
+    state.session.status = "running";
+    state.session.startedAt = t.toISOString();
+    state.session.pausedAt = null;
+    state.session.pauseAccumMs = 0;
+    state.session.checkIndex = 0;
+    state.session.lockedIntervals = locked;
+    state.session.asleepAt = null;
+
+    scheduleDueFrom(t);
+
+    // Lock plan input UI
+    saveState(state);
+    renderPlan();
+
+    logEvent("Session started", `Locked intervals: ${locked.join(", ")}`);
+    showScreen("runner");
+    startTicking();
+    toast("Session started");
+  }
+
+  function togglePause(){
+    if (state.session.status === "running"){
+      state.session.status = "paused";
+      state.session.pausedAt = now().toISOString();
+      saveState(state);
+      logEvent("Paused");
+      toast("Paused");
+      updateRunnerUI();
+      return;
+    }
+
+    if (state.session.status === "paused"){
+      const pausedAtMs = new Date(state.session.pausedAt).getTime();
+      const delta = now().getTime() - pausedAtMs;
+
+      // accumulate pause time
+      state.session.pauseAccumMs = (state.session.pauseAccumMs || 0) + delta;
+
+      // shift dueAt forward so countdown truly pauses
+      if (state.session.dueAt){
+        const dueMs = new Date(state.session.dueAt).getTime();
+        state.session.dueAt = new Date(dueMs + delta).toISOString();
+      }
+
+      state.session.status = "running";
+      state.session.pausedAt = null;
+      saveState(state);
+      logEvent("Resumed");
+      toast("Resumed");
+      updateRunnerUI();
+    }
+  }
+
+  function logCheckin(){
+    if (state.session.status !== "running") return;
+
+    const idx = state.session.checkIndex || 0;
+    logEvent("CHECK-IN", `#${idx + 1}`);
+
+    state.session.checkIndex = idx + 1;
+    scheduleDueFrom(now());
+    saveState(state);
+    toast("Check-in logged");
+    updateRunnerUI();
+  }
+
+  function logFeed(){
+    // feeds can be logged in any state (running/paused/asleep) because reality
+    const windows = state.intake.feedWindows || [];
+    const note = windows.length ? `Window prefs: ${windows.join(", ")}` : "";
+    logEvent("FEED", note);
+    toast("Feed logged");
+  }
+
+  function markAsleep(){
+    if (!["running","paused"].includes(state.session.status)) return;
+
+    // If paused, resume first for cleaner timestamps
+    if (state.session.status === "paused"){
+      togglePause();
+    }
+
+    state.session.status = "asleep";
+    state.session.asleepAt = now().toISOString();
+    saveState(state);
+
+    logEvent("Baby asleep");
+    toast("Marked asleep");
+    updateRunnerUI();
+  }
+
+  function newWake(){
+    if (state.session.status !== "asleep") return;
+
+    const t = now();
+    state.session.status = "running";
+    state.session.startedAt = t.toISOString();
+    state.session.pausedAt = null;
+    state.session.pauseAccumMs = 0;
+    state.session.checkIndex = 0;
+    state.session.asleepAt = null;
+
+    scheduleDueFrom(t);
+    saveState(state);
+
+    logEvent("New wake", "Intervals restarted from #1");
+    toast("New wake");
+    updateRunnerUI();
+  }
+
+  function resetSession(){
+    if (!["running","paused"].includes(state.session.status)) return;
+
+    // If paused, resume so shifting works cleanly
+    if (state.session.status === "paused"){
+      togglePause();
+    }
+
+    const t = now();
+    state.session.status = "running";
+    state.session.startedAt = t.toISOString();
+    state.session.pausedAt = null;
+    state.session.pauseAccumMs = 0;
+    state.session.checkIndex = 0;
+    state.session.asleepAt = null;
+
+    scheduleDueFrom(t);
+    saveState(state);
+
+    logEvent("RESET", "Picked up / restarted timer");
+    toast("Reset");
+    updateRunnerUI();
+  }
+
+  function endSession(){
+    if (!["running","paused","asleep"].includes(state.session.status)) return;
+
+    logEvent("Session ended");
+
+    state.session.status = "idle";
+    state.session.startedAt = null;
+    state.session.pausedAt = null;
+    state.session.pauseAccumMs = 0;
+    state.session.dueAt = null;
+    state.session.checkIndex = 0;
+    state.session.lockedIntervals = [];
+    state.session.asleepAt = null;
+
+    saveState(state);
+    stopTicking();
+    toast("Ended");
+    showScreen("plan");
+    updateRunnerUI();
+  }
+
+  // =======================
+  // Wake Lock
+  // =======================
+  async function requestWakeLock(){
+    if (!("wakeLock" in navigator)){
+      $("wakeLockBtn").textContent = "Keep screen awake: N/A";
+      return;
+    }
+    try{
+      if (!wakeLock){
+        wakeLock = await navigator.wakeLock.request("screen");
+        $("wakeLockBtn").textContent = "Keep screen awake: ON";
+        logEvent("Wake Lock", "ON");
+        wakeLock.addEventListener("release", () => {
+          wakeLock = null;
+          $("wakeLockBtn").textContent = "Keep screen awake: OFF";
+          logEvent("Wake Lock", "OFF");
+        });
+      }
+    }catch{
+      $("wakeLockBtn").textContent = "Keep screen awake: OFF";
+    }
+  }
+
+  async function toggleWakeLock(){
+    if (!("wakeLock" in navigator)){
+      toast("Wake Lock not supported here");
+      return;
+    }
+    try{
+      if (!wakeLock){
+        await requestWakeLock();
+        toast("Wake Lock ON");
+      } else {
+        await wakeLock.release();
+        wakeLock = null;
+        $("wakeLockBtn").textContent = "Keep screen awake: OFF";
+        logEvent("Wake Lock", "OFF");
+        toast("Wake Lock OFF");
+      }
+    }catch{
+      toast("Wake Lock error");
+    }
+  }
+
+  // =======================
+  // Export / clear log
+  // =======================
+  async function exportLog(){
+    const lines = state.session.log || [];
+    const header = [
+      "Night Coach Export",
+      `Baby: ${state.plan?.babyName || state.intake.babyName || "(blank)"}`,
+      `Ferber day: ${state.plan?.ferberDay ?? "(none)"}`,
+      `Locked intervals: ${(state.session.lockedIntervals && state.session.lockedIntervals.length) ? state.session.lockedIntervals.join(", ") : "(none)"}`,
+      `Feed goal: ${state.plan?.feeds ? `${state.plan.feeds.current} → ${state.plan.feeds.target} in ~${state.plan.feeds.days} days` : "(none)"}`,
+      "—"
+    ].join("\n");
+
+    const out = header + "\n" + lines.join("\n");
+
+    try{
+      await navigator.clipboard.writeText(out);
+      toast("Copied export to clipboard");
+      logEvent("Exported log");
+    }catch{
+      prompt("Copy your log:", out);
+    }
+  }
+
+  function clearLog(){
+    state.session.log = [];
+    saveState(state);
+    renderLog();
+    toast("Cleared");
+  }
+
+  // =======================
+  // UI wiring
+  // =======================
+  function loadExample(){
+    state.intake = {
+      babyName: "Cam",
+      ageMonths: "5.5",
+      nightsAttempted: "1",
+      longestCry: "90",
+      currentFeeds: "2",
+      targetFeeds: "1",
+      targetDays: "10",
+      feedWindows: ["23:00-01:00", "03:00-05:00"],
+      alertMode: "vibrate"
+    };
+    saveState(state);
+    hydrateIntake();
+    toast("Example loaded");
+  }
+
+  $("loadExampleBtn").addEventListener("click", loadExample);
+  $("generateBtn").addEventListener("click", generatePlan);
+
+  $("logCheckinBtn").addEventListener("click", logCheckin);
+  $("logFeedBtn").addEventListener("click", logFeed);
+  $("asleepBtn").addEventListener("click", markAsleep);
+  $("pauseBtn").addEventListener("click", togglePause);
+  $("resetBtn").addEventListener("click", resetSession);
+  $("newWakeBtn").addEventListener("click", newWake);
+  $("endBtn").addEventListener("click", endSession);
+  $("wakeLockBtn").addEventListener("click", toggleWakeLock);
+
+  $("backToPlanBtn").addEventListener("click", () => {
+    showScreen("plan");
+    renderPlan();
+  });
+
+  $("exportBtn").addEventListener("click", exportLog);
+  $("clearLogBtn").addEventListener("click", clearLog);
+
+  // =======================
+  // Boot
+  // =======================
+  function boot(){
+    hydrateIntake();
+    renderLog();
+
+    // If we already have a plan, render it; otherwise show intake
+    if (state.plan) renderPlan();
+
+    // Resume where you left off
+    if (["running","paused","asleep"].includes(state.session.status) && state.plan){
+      showScreen("runner");
+      startTicking();
+      // Keep plan intervals locked visually
+      renderPlan();
+    } else if (state.plan){
+      showScreen("plan");
+    } else {
+      showScreen("intake");
+    }
+
+    // Wake lock button initial label
+    $("wakeLockBtn").textContent = ("wakeLock" in navigator) ? "Keep screen awake: OFF" : "Keep screen awake: N/A";
+
+    setStatePill(state.session.status || "idle");
+  }
+
+  boot();
+})();
+</script>
+
+</body>
+</html>
